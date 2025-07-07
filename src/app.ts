@@ -8,7 +8,7 @@ import educationRoutes from './routes/educationRoutes';
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({ extended: true}));
+app.use(express.urlencoded({ extended: true }));
 
 app.use('/api/sensors', sensorRoutes);
 app.use('/api/sensor-history', sensorHistoryRoutes);
