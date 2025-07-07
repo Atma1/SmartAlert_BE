@@ -4,7 +4,23 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "build": "tsc",
-    "start": "node dist/server.js"
+    "start": "node dist/server.js",
+    "seed": "ts-node src/seeds/index.ts",
+    "seed:education": "ts-node src/seeds/seedEducation.ts",
+    "seed:reports": "ts-node src/seeds/seedReports.ts",
+    "seed:sensors": "ts-node src/seeds/seedSensors.ts",
+    "seed:sensor-history": "ts-node src/seeds/seedSensorHistory.ts",
+    "drop:education": "ts-node src/seeds/dropEducation.ts",
+    "drop:reports": "ts-node src/seeds/dropReports.ts",
+    "drop:sensors": "ts-node src/seeds/dropSensors.ts",
+    "drop:sensor-history": "ts-node src/seeds/dropSensorHistory.ts",
+    "drop:all": "ts-node -e \"import('./src/seeds/index').then(m => m.dropAllTables())\"",
+    "migrate:education": "ts-node src/seeds/migrateEducation.ts",
+    "migrate:reports": "ts-node src/seeds/migrateReports.ts",
+    "migrate:sensors": "ts-node src/seeds/migrateSensors.ts",
+    "migrate:sensor-history": "ts-node src/seeds/migrateSensorHistory.ts",
+    "migrate:all": "ts-node -e \"import('./src/seeds/index').then(m => m.migrateAllTables())\"",
+    "db:reset": "ts-node -e \"import('./src/seeds/index').then(m => m.resetDatabase())\""
   },
   "dependencies": {
     "cors": "^2.8.5",
@@ -15,7 +31,10 @@
     "mysql2": "^3.6.0"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.19",
     "@types/express": "^4.17.17",
+    "@types/json2csv": "^5.0.7",
+    "@types/multer": "^2.0.0",
     "@types/node": "^20.19.1",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
