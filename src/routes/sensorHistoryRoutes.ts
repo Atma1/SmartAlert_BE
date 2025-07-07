@@ -4,7 +4,6 @@ import {
   getSensorPerformance,
   getStatusDistribution,
   createSensorLog,
-  getSensorOverview,
   exportSensorTrendCsv
 } from '../controllers/sensorHistoryController';
 
