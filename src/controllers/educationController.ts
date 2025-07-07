@@ -1,11 +1,17 @@
 import { Request, Response } from 'express';
-import {pool} from '../models/db'; // pastikan koneksi mysql2/promise
+import { pool } from '../models/db'; // pastikan koneksi mysql2/promise
 
 export const getAllEducation = async (_: Request, res: Response) => {
   try {
     const [rows] = await pool.query('SELECT * FROM education ORDER BY createdAt DESC');
-    res.json(rows);
+    const education = (rows as any[]).map(row => ({
+      ...row,
+      tags: JSON.parse(row.tags) // Parse JSON string to array
+    }));
+    res.json(education);
   } catch (error) {
+    console.log(error);
+
     res.status(500).json({ message: 'Failed to fetch education data' });
   }
 };
@@ -30,19 +36,27 @@ export const createEducation = async (req: Request, res: Response) => {
 
 export const updateEducation = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { title, description, topics } = req.body;
+  const { title, summary, content, tags, category } = req.body;
 
-  if (!title || !description || !Array.isArray(topics)) {
+  if (!title || !content || !summary || !category || !Array.isArray(tags)) {
+    console.log(Array.isArray(tags));
     return res.status(400).json({ message: 'Invalid input data' });
   }
 
   try {
-    const [result] = await pool.query(
-      'UPDATE education SET title = ?, description = ?, topics = ? WHERE id = ?',
-      [title, description, JSON.stringify(topics), id]
+    await pool.query(
+      `UPDATE education SET 
+      title = ?,
+      tags = ?,
+      content = ?,
+      summary = ?,
+      category = ?
+      WHERE id = ?`,
+      [title, JSON.stringify(tags), content, summary, category, id]
     );
     res.json({ message: 'Education updated successfully' });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: 'Failed to update education' });
   }
 };

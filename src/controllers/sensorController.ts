@@ -12,7 +12,7 @@ function determineStatus(temp: number, moisture: number, movement: number): 'Nor
 }
 
 export const createSensor = async (req: Request, res: Response) => {
-  
+
   const {
     name,
     location,
@@ -42,7 +42,7 @@ export const createSensor = async (req: Request, res: Response) => {
   function formatMySQLDatetime(date: Date): string {
     return date.toISOString().slice(0, 19).replace('T', ' ');
   }
-  
+
   try {
     const temp = parseFloat(temperature) || 25;
     const moist = parseFloat(moisture) || 60;
@@ -77,33 +77,53 @@ export const createSensor = async (req: Request, res: Response) => {
 
 export const getAllSensors = async (_req: Request, res: Response) => {
   try {
-    const [rows] = await pool.query('Select * FROM sensors ORDER BY lastUpdate Desc');
-    return res.status(200).json(rows);
+    // Get all sensors
+    const [sensors] = await pool.query('SELECT * FROM sensors ORDER BY lastUpdate DESC') as any[];
+
+    // Get sensor history for each sensor
+    const sensorsWithHistory = await Promise.all(
+      sensors.map(async (sensor: any) => {
+        const [history] = await pool.query(
+          'SELECT * FROM sensor_history WHERE sensor_id = ? ORDER BY timestamp DESC',
+          [sensor.id]
+        ) as any[];
+
+        return {
+          ...sensor,
+          temperature: parseFloat(sensor.temperature),
+          moisture: parseFloat(sensor.moisture),
+          movement: parseFloat(sensor.movement),
+          history: history
+        };
+      })
+    );
+
+    return res.status(200).json(sensorsWithHistory);
   } catch (error) {
     console.error('Get sensors error:', error);
-    return res.status(500).json({message: 'Failed to fetch sensors'});
+    return res.status(500).json({ message: 'Failed to fetch sensors' });
   }
 };
 
 export const getSensorOverview = async (_req: Request, res: Response) => {
   try {
-      const [rows] = await pool.query(`
+    const [rows] = await pool.query(`
           SELECT 
           COUNT(*) AS totalSensors,
           AVG(temperature) AS avgTemperature,
           AVG(moisture) AS avgMoisture,
           SUM(CASE WHEN status ='Bahaya' THEN 1 ELSE 0 END) AS criticalAlerts
           FROM sensors
-         `);
-      const result = rows [0];
-      res.status(200).json({
-          totalSensors: result.totalSensors,
-          avgTemperature: parseFloat(result.avgTemperature).toFixed(1),
-          avgMoisture: parseFloat(result.avgMoisture).toFixed(1),
-          criticalAlerts: result.criticalAlerts
-      });
+         `) as any[];
+    const result = rows[0];
+    res.status(200).json({
+      totalSensors: result.totalSensors,
+      avgTemperature: parseFloat(result.avgTemperature).toFixed(1),
+      avgMoisture: parseFloat(result.avgMoisture).toFixed(1),
+      criticalAlerts: result.criticalAlerts
+    });
   } catch (error) {
-      console.error('Error fetching sensor overciew:', error);
-      res.status(500).json({message: 'Error fetching overview', error});
+    console.error('Error fetching sensor overciew:', error);
+    res.status(500).json({ message: 'Error fetching overview', error });
   }
 };
