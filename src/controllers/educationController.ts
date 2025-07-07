@@ -4,14 +4,13 @@ import { pool } from '../models/db'; // pastikan koneksi mysql2/promise
 export const getAllEducation = async (_: Request, res: Response) => {
   try {
     const [rows] = await pool.query('SELECT * FROM education ORDER BY createdAt DESC');
+
     const education = (rows as any[]).map(row => ({
       ...row,
-      tags: JSON.parse(row.tags) // Parse JSON string to array
     }));
     res.json(education);
   } catch (error) {
     console.log(error);
-
     res.status(500).json({ message: 'Failed to fetch education data' });
   }
 };
