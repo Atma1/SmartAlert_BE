@@ -7,6 +7,7 @@ export const getAllEducation = async (_: Request, res: Response) => {
 
     const education = (rows as any[]).map(row => ({
       ...row,
+      tags: JSON.parse(row.tags)
     }));
     res.json(education);
   } catch (error) {
