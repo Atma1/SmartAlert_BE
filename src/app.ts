@@ -10,6 +10,14 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+
+app.get("/", (_req, res) => {
+    res.json({
+        message: "Hello world!",
+    });
+});
+
+
 app.use('/api/sensors', sensorRoutes);
 app.use('/api/sensor-history', sensorHistoryRoutes);
 app.use('/api/report', reportRoutes);
