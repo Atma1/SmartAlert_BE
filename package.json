@@ -4,6 +4,7 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "build": "tsc",
+    "vercel-build": "echo hello",
     "start": "node dist/server.js",
     "seed": "ts-node src/seeds/index.ts",
     "seed:education": "ts-node src/seeds/seedEducation.ts",
